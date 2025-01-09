@@ -114,6 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
+    // Añadir botón "Editar" en la función renderizarFacturas
     function renderizarFacturas(searchTerm = '', sortBy = 'fechaAsc') {
         listaFacturas.innerHTML = '';
         const facturasFiltradas = facturas
@@ -123,18 +124,24 @@ document.addEventListener('DOMContentLoaded', () => {
         facturasFiltradas.forEach((factura) => {
             const li = document.createElement('li');
             li.innerHTML = `
-                <p>NI: ${factura.numeroInterno}</p>
-                <p style="background-color: #f0f8ff;">Fecha: ${new Date(factura.fecha).toLocaleDateString('es-ES')}</p>
-                <p style="background-color: #e6e6fa;">Proveedor: ${factura.proveedor}</p>
-                <p style="background-color: #f5f5dc;">Rubro: ${factura.rubro}</p>
-                <p style="background-color: #e6ffe6; color: green;">Total: $${factura.total.toFixed(2)}</p>
-                ${factura.total !== factura.totalEsperado ? '<span>⚠️</span>' : ''}
-            `;
+            <p>NI: ${factura.numeroInterno}</p>
+            <p style="background-color: #f0f8ff;">Fecha: ${new Date(factura.fecha).toLocaleDateString('es-ES')}</p>
+            <p style="background-color: #e6e6fa;">Proveedor: ${factura.proveedor}</p>
+            <p style="background-color: #f5f5dc;">Rubro: ${factura.rubro}</p>
+            <p style="background-color: #e6ffe6; color: green;">Total: $${factura.total.toFixed(2)}</p>
+            ${factura.total !== factura.totalEsperado ? '<span>⚠️</span>' : ''}
+        `;
             const verDetallesBtn = document.createElement('button');
             verDetallesBtn.textContent = 'Ver Detalles';
             verDetallesBtn.classList.add('bg-blue-500', 'text-white', 'p-2', 'rounded', 'hover:bg-blue-700', 'ml-2');
             verDetallesBtn.addEventListener('click', () => {
                 mostrarDetallesFactura(factura);
+            });
+            const editarBtn = document.createElement('button');
+            editarBtn.textContent = 'Editar';
+            editarBtn.classList.add('bg-yellow-500', 'text-white', 'p-2', 'rounded', 'hover:bg-yellow-700', 'ml-2');
+            editarBtn.addEventListener('click', () => {
+                editarFactura(factura);
             });
             const eliminarBtn = document.createElement('button');
             eliminarBtn.textContent = 'Eliminar';
@@ -147,11 +154,126 @@ document.addEventListener('DOMContentLoaded', () => {
             pagarBtn.classList.add('bg-green-500', 'text-white', 'p-2', 'rounded', 'hover:bg-green-700', 'ml-2');
             pagarBtn.addEventListener('click', () => pagarFactura(factura));
             li.appendChild(verDetallesBtn);
+            li.appendChild(editarBtn);
             li.appendChild(eliminarBtn);
             li.appendChild(pagarBtn);
             listaFacturas.appendChild(li);
         });
     }
+
+    const guardarCambiosBtn = document.createElement('button');
+    guardarCambiosBtn.textContent = 'Guardar Cambios';
+    guardarCambiosBtn.classList.add('bg-green-500', 'text-white', 'p-2', 'rounded', 'hover:bg-green-700', 'ml-2');
+    guardarCambiosBtn.style.display = 'none'; // Ocultar inicialmente
+
+    const cancelarEdicionBtn = document.createElement('button');
+    cancelarEdicionBtn.textContent = 'Cancelar';
+    cancelarEdicionBtn.classList.add('bg-gray-500', 'text-white', 'p-2', 'rounded', 'hover:bg-gray-700', 'ml-2');
+    cancelarEdicionBtn.style.display = 'none'; // Ocultar inicialmente
+
+    document.getElementById('crearFacturaForm').appendChild(guardarCambiosBtn);
+    document.getElementById('crearFacturaForm').appendChild(cancelarEdicionBtn);
+
+// Función para editar factura
+    function editarFactura(factura) {
+        document.getElementById('fechaFactura').value = new Date(factura.fecha).toISOString().split('T')[0];
+        document.getElementById('proveedorFactura').value = factura.proveedor;
+        document.getElementById('rubroFactura').value = factura.rubro;
+        document.getElementById('numeroFactura').value = factura.numero;
+        document.getElementById('tipoFactura').value = factura.tipo;
+        document.getElementById('totalEsperadoFactura').value = factura.totalEsperado;
+
+        productosContainer.innerHTML = '';
+        factura.productos.forEach(producto => {
+            const productoDiv = document.createElement('div');
+            productoDiv.classList.add('producto', 'mb-2');
+            productoDiv.innerHTML = `
+            <select class="productoNombre border p-2 mb-2" required></select>
+            <input type="number" class="productoCantidad border p-2 mb-2" placeholder="Cantidad" step="0.01" required>
+            <input type="number" class="productoPrecio border p-2 mb-2" placeholder="Precio Total" required>
+            <button type="button" class="eliminarProductoBtn bg-red-500 text-white p-2 mb-2 rounded hover:bg-red-700">Eliminar</button>
+        `;
+            productosContainer.appendChild(productoDiv);
+            renderizarProductosSelect();
+
+            productoDiv.querySelector('.productoNombre').value = producto.nombre;
+            productoDiv.querySelector('.productoCantidad').value = producto.cantidad;
+            productoDiv.querySelector('.productoPrecio').value = producto.precio;
+
+            productoDiv.querySelector('.eliminarProductoBtn').addEventListener('click', () => {
+                productosContainer.removeChild(productoDiv);
+                guardarFormulario();
+            });
+        });
+
+        // Mostrar botones "Guardar Cambios" y "Cancelar"
+        guardarCambiosBtn.style.display = 'inline-block';
+        cancelarEdicionBtn.style.display = 'inline-block';
+
+        // Guardar cambios al formulario
+        guardarCambiosBtn.onclick = (event) => {
+            event.preventDefault();
+            factura.fecha = new Date(document.getElementById('fechaFactura').value);
+            factura.proveedor = document.getElementById('proveedorFactura').value;
+            factura.rubro = document.getElementById('rubroFactura').value;
+            factura.numero = document.getElementById('numeroFactura').value;
+            factura.tipo = document.getElementById('tipoFactura').value;
+            factura.totalEsperado = parseFloat(document.getElementById('totalEsperadoFactura').value) || 0;
+
+            factura.productos = [];
+            let total = 0;
+            document.querySelectorAll('.producto').forEach(productoDiv => {
+                const nombre = productoDiv.querySelector('.productoNombre').value;
+                const cantidad = parseFloat(productoDiv.querySelector('.productoCantidad').value);
+                const precioTotal = parseFloat(productoDiv.querySelector('.productoPrecio').value);
+                if (nombre && !isNaN(cantidad) && !isNaN(precioTotal)) {
+                    const tipoCantidad = productos.find(p => p.nombre === nombre).tipoCantidad;
+                    const precioUnitario = precioTotal / cantidad;
+                    const subtotal = precioTotal;
+                    total += subtotal;
+                    factura.productos.push({ nombre, cantidad, precio: precioUnitario, tipoCantidad, subtotal });
+                }
+            });
+            factura.total = total;
+
+            localStorage.setItem('facturas', JSON.stringify(facturas));
+            renderizarFacturas();
+            crearFacturaForm.reset();
+            productosContainer.innerHTML = '';
+            guardarCambiosBtn.style.display = 'none'; // Ocultar botón "Guardar Cambios"
+            cancelarEdicionBtn.style.display = 'none'; // Ocultar botón "Cancelar"
+            crearFacturaForm.onsubmit = guardarFormulario; // Reset the form submit handler
+        };
+
+        // Cancelar edición
+        cancelarEdicionBtn.onclick = (event) => {
+            event.preventDefault();
+            crearFacturaForm.reset();
+            productosContainer.innerHTML = '';
+            guardarCambiosBtn.style.display = 'none'; // Ocultar botón "Guardar Cambios"
+            cancelarEdicionBtn.style.display = 'none'; // Ocultar botón "Cancelar"
+            crearFacturaForm.onsubmit = guardarFormulario; // Reset the form submit handler
+        };
+    }
+
+
+    const reiniciarFormularioBtn = document.createElement('button');
+    reiniciarFormularioBtn.textContent = 'Reiniciar Formulario';
+    reiniciarFormularioBtn.classList.add('bg-red-500', 'text-white', 'p-2', 'rounded', 'hover:bg-red-700', 'ml-2');
+
+// Añadir el botón al formulario
+    document.getElementById('crearFacturaForm').appendChild(reiniciarFormularioBtn);
+
+// Función para reiniciar el formulario
+    reiniciarFormularioBtn.onclick = (event) => {
+        event.preventDefault();
+        crearFacturaForm.reset();
+        productosContainer.innerHTML = '';
+        localStorage.removeItem('formData');
+        guardarCambiosBtn.style.display = 'none'; // Ocultar botón "Guardar Cambios"
+        cancelarEdicionBtn.style.display = 'none'; // Ocultar botón "Cancelar"
+        crearFacturaForm.onsubmit = guardarFormulario; // Reset the form submit handler
+    };
 
 
     function renderizarFacturasPagadas(searchTerm = '', sortBy = 'fechaAsc') {
