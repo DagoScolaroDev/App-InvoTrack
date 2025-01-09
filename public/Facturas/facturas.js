@@ -14,14 +14,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmDeleteModal = document.getElementById('confirmDeleteModal');
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
     const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+
     let facturaToDelete = null;
     let tipoToDelete = null;
-
     let facturas = JSON.parse(localStorage.getItem('facturas')) || [];
     let facturasPagadas = JSON.parse(localStorage.getItem('facturasPagadas')) || [];
     let productos = JSON.parse(localStorage.getItem('productos')) || [];
     let cuentas = JSON.parse(localStorage.getItem('cuentas')) || [];
     let recetas = JSON.parse(localStorage.getItem('productosRecetas')) || [];
+
+    function convertirAMayusculas(event) {
+        event.target.value = event.target.value.toUpperCase();
+    }
+
+    function agregarEventosMayusculas() {
+        const inputs = crearFacturaForm.querySelectorAll('input[type="text"], input[type="date"], input[type="number"]');
+        inputs.forEach(input => {
+            input.addEventListener('input', convertirAMayusculas);
+        });
+    }
+
+
 
     function guardarFormulario() {
         const formData = {
@@ -29,6 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
             proveedor: document.getElementById('proveedorFactura').value,
             rubro: document.getElementById('rubroFactura').value,
             numero: document.getElementById('numeroFactura').value,
+            tipo: document.getElementById('tipoFactura').value,
+            totalEsperado: document.getElementById('totalEsperadoFactura').value,
             productos: []
         };
 
@@ -49,16 +64,18 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('proveedorFactura').value = formData.proveedor;
             document.getElementById('rubroFactura').value = formData.rubro;
             document.getElementById('numeroFactura').value = formData.numero;
+            document.getElementById('tipoFactura').value = formData.tipo;
+            document.getElementById('totalEsperadoFactura').value = formData.totalEsperado;
 
             formData.productos.forEach(producto => {
                 const productoDiv = document.createElement('div');
                 productoDiv.classList.add('producto', 'mb-2');
                 productoDiv.innerHTML = `
-                    <select class="productoNombre border p-2 mb-2" required></select>
-                    <input type="number" class="productoCantidad border p-2 mb-2" placeholder="Cantidad" step="0.01" required>
-                    <input type="number" class="productoPrecio border p-2 mb-2" placeholder="Precio Total" required>
-                    <button type="button" class="eliminarProductoBtn bg-red-500 text-white p-2 mb-2 rounded hover:bg-red-700">Eliminar</button>
-                `;
+                <select class="productoNombre border p-2 mb-2" required></select>
+                <input type="number" class="productoCantidad border p-2 mb-2" placeholder="Cantidad" step="0.01" required>
+                <input type="number" class="productoPrecio border p-2 mb-2" placeholder="Precio Total" required>
+                <button type="button" class="eliminarProductoBtn bg-red-500 text-white p-2 mb-2 rounded hover:bg-red-700">Eliminar</button>
+            `;
                 productosContainer.appendChild(productoDiv);
                 renderizarProductosSelect();
 
@@ -106,13 +123,13 @@ document.addEventListener('DOMContentLoaded', () => {
         facturasFiltradas.forEach((factura) => {
             const li = document.createElement('li');
             li.innerHTML = `
-            <p>NI: ${factura.numeroInterno}</p>
-            <p style="background-color: #f0f8ff;">Fecha: ${new Date(factura.fecha).toLocaleDateString('es-ES')}</p>
-            <p style="background-color: #e6e6fa;">Proveedor: ${factura.proveedor}</p>
-            <p style="background-color: #f5f5dc;">Rubro: ${factura.rubro}</p>
-            <p style="background-color: #e6ffe6; color: green;">Total: $${factura.total.toFixed(2)}</p>
-            <p style="background-color: #ffe6e6; color: red;">Total Esperado: $${(factura.totalEsperado || 0).toFixed(2)}</p>
-        `;
+                <p>NI: ${factura.numeroInterno}</p>
+                <p style="background-color: #f0f8ff;">Fecha: ${new Date(factura.fecha).toLocaleDateString('es-ES')}</p>
+                <p style="background-color: #e6e6fa;">Proveedor: ${factura.proveedor}</p>
+                <p style="background-color: #f5f5dc;">Rubro: ${factura.rubro}</p>
+                <p style="background-color: #e6ffe6; color: green;">Total: $${factura.total.toFixed(2)}</p>
+                ${factura.total !== factura.totalEsperado ? '<span>⚠️</span>' : ''}
+            `;
             const verDetallesBtn = document.createElement('button');
             verDetallesBtn.textContent = 'Ver Detalles';
             verDetallesBtn.classList.add('bg-blue-500', 'text-white', 'p-2', 'rounded', 'hover:bg-blue-700', 'ml-2');
@@ -128,15 +145,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const pagarBtn = document.createElement('button');
             pagarBtn.textContent = 'Pagar';
             pagarBtn.classList.add('bg-green-500', 'text-white', 'p-2', 'rounded', 'hover:bg-green-700', 'ml-2');
-            pagarBtn.addEventListener('click', () => abrirModal(index));
-            const index = facturas.indexOf(factura);
-
+            pagarBtn.addEventListener('click', () => pagarFactura(factura));
             li.appendChild(verDetallesBtn);
             li.appendChild(eliminarBtn);
             li.appendChild(pagarBtn);
             listaFacturas.appendChild(li);
         });
     }
+
 
     function renderizarFacturasPagadas(searchTerm = '', sortBy = 'fechaAsc') {
         listaFacturasPagadas.innerHTML = '';
@@ -155,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <p style="background-color: #e6e6fa;">Proveedor: ${factura.proveedor}</p>
             <p style="background-color: #f5f5dc;">Rubro: ${factura.rubro}</p>
             <p style="background-color: #e6ffe6; color: green;">Total: $${factura.total.toFixed(2)}</p>
-            <p style="background-color: #ffe6e6; color: red;">Total Esperado: $${(factura.totalEsperado || 0).toFixed(2)}</p>
+            ${factura.total !== factura.totalEsperado ? '<span>⚠️</span>' : ''}
             <p style="background-color: ${color};">Pagada con: ${factura.cuentaPagada}</p>
         `;
             const verDetallesBtn = document.createElement('button');
@@ -175,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
             listaFacturasPagadas.appendChild(li);
         });
     }
-
 
 
     function ordenarFacturas(a, b, sortBy) {
@@ -202,7 +217,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    function abrirModal(facturaIndex) {
+    function pagarFactura(factura) {
+        if (factura.total !== factura.totalEsperado) {
+            document.getElementById('confirmDiscrepancyModal').classList.remove('hidden');
+            document.getElementById('confirmDiscrepancyBtn').onclick = () => {
+                document.getElementById('confirmDiscrepancyModal').classList.add('hidden');
+                abrirModal(factura);
+            };
+            document.getElementById('cancelDiscrepancyBtn').onclick = () => {
+                document.getElementById('confirmDiscrepancyModal').classList.add('hidden');
+            };
+        } else {
+            abrirModal(factura);
+        }
+    }
+
+    function abrirModal(factura) {
         cuentaSelect.innerHTML = '';
         cuentas.forEach((cuenta, index) => {
             const option = document.createElement('option');
@@ -210,19 +240,18 @@ document.addEventListener('DOMContentLoaded', () => {
             option.textContent = cuenta.nombre;
             cuentaSelect.appendChild(option);
         });
-        confirmBtn.onclick = () => confirmarPago(facturaIndex);
+        confirmBtn.onclick = () => confirmarPago(factura);
         modal.classList.remove('hidden');
     }
 
-    function confirmarPago(facturaIndex) {
+    function confirmarPago(factura) {
         const cuentaIndex = parseInt(cuentaSelect.value, 10);
-        const factura = facturas[facturaIndex];
         if (cuentaIndex >= 0 && factura) {
             const cuenta = cuentas[cuentaIndex];
             cuenta.saldo -= factura.total;
             factura.cuentaPagada = cuenta.nombre;
             facturasPagadas.push(factura);
-            facturas.splice(facturaIndex, 1);
+            facturas = facturas.filter(f => f !== factura);
             localStorage.setItem('cuentas', JSON.stringify(cuentas));
             localStorage.setItem('facturas', JSON.stringify(facturas));
             localStorage.setItem('facturasPagadas', JSON.stringify(facturasPagadas));
@@ -247,10 +276,12 @@ document.addEventListener('DOMContentLoaded', () => {
             `).join('')}
         </ul>
         <p class="font-bold">Total: $${factura.total.toFixed(2)}</p>
+        <p class="font-bold">Total Esperado: $${factura.totalEsperado.toFixed(2)}</p>
         ${factura.cuentaPagada ? `<p>Pagada con: ${factura.cuentaPagada}</p>` : ''}
     `;
         detallesModal.style.display = 'flex';
     }
+
 
     cerrarDetallesBtn.addEventListener('click', () => {
         detallesModal.style.display = 'none';
@@ -260,6 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     crearFacturaForm.addEventListener('submit', (event) => {
         event.preventDefault();
+
         const fechaInput = document.getElementById('fechaFactura').value;
         const fecha = new Date(fechaInput);
         fecha.setMinutes(fecha.getMinutes() + fecha.getTimezoneOffset()); // Adjust for timezone
@@ -301,6 +333,9 @@ document.addEventListener('DOMContentLoaded', () => {
         actualizarPreciosRecetas(); // Update recipes with the latest prices
         crearFacturaForm.reset();
         productosContainer.innerHTML = '';
+
+        // Clear the form data from localStorage
+        localStorage.removeItem('formData');
     });
 
 
@@ -446,6 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    agregarEventosMayusculas(); // Agregar eventos a los inputs existentes
     cargarFormulario();
     actualizarDatalists();
     renderizarProductosSelect();

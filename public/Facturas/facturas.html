@@ -23,21 +23,23 @@
 
     <form id="crearFacturaForm" class="mb-8 p-6 bg-white rounded-lg shadow-md">
         <h2 class="text-2xl font-semibold mb-4">Crear Factura</h2>
-        <input type="date" id="fechaFactura" class="border p-2 mb-4 w-full rounded" placeholder="Fecha" required>
-        <input type="text" id="proveedorFactura" class="border p-2 mb-4 w-full rounded" placeholder="Proveedor" list="proveedoresList" required>
+        <input type="date" id="fechaFactura" class="border p-2 mb-4 w-full rounded" placeholder="Fecha">
+        <input type="text" id="proveedorFactura" class="border p-2 mb-4 w-full rounded" placeholder="Proveedor" list="proveedoresList">
         <datalist id="proveedoresList"></datalist>
-        <input type="text" id="rubroFactura" class="border p-2 mb-4 w-full rounded" placeholder="Rubro" list="rubrosList" required>
+        <input type="text" id="rubroFactura" class="border p-2 mb-4 w-full rounded" placeholder="Rubro" list="rubrosList">
         <datalist id="rubrosList"></datalist>
         <input type="text" id="numeroFactura" class="border p-2 mb-4 w-full rounded" placeholder="Número de Factura">
-        <input type="text" id="tipoFactura" class="border p-2 mb-4 w-full rounded" placeholder="Tipo de Factura" required>
-        <input type="number" id="totalEsperadoFactura" class="border p-2 mb-4 w-full rounded" placeholder="Total Esperado" required>
+        <input type="text" id="tipoFactura" class="border p-2 mb-4 w-full rounded" placeholder="Tipo de Factura">
+        <div class="flex items-center mb-4">
+            <input type="number" id="totalEsperadoFactura" class="border p-2 w-full rounded" placeholder="Total Esperado">
+            <span id="alertaTotal" class="ml-2 text-red-500 hidden">⚠️</span>
+        </div>
         <div id="productosContainer" class="mb-4">
             <!-- Los productos se agregarán dinámicamente aquí -->
         </div>
         <button type="button" id="agregarProductoBtn" class="bg-blue-500 text-white p-2 rounded mb-4">Agregar Producto</button>
         <button type="submit" class="bg-green-500 text-white p-2 rounded">Crear Factura</button>
     </form>
-
 
     <div class="mb-8 p-6 bg-white rounded-lg shadow-md">
         <div class="flex justify-between items-center mb-4">
@@ -76,7 +78,6 @@
         <ul id="listaFacturasPagadas" class="list-disc pl-5 space-y-3"></ul>
     </div>
 
-
     <div id="detallesModal" class="modal hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
         <div class="modal-content bg-white p-4 rounded-lg w-11/12 md:w-1/3">
             <div id="detallesFactura" class="mb-4"></div>
@@ -94,20 +95,30 @@
             </div>
         </div>
     </div>
-</div>
 
-<div id="confirmDeleteModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
-    <div class="bg-white p-4 rounded-lg w-11/12 md:w-1/3">
-        <h2 class="text-xl font-bold mb-2">Confirmar Eliminación</h2>
-        <p>¿Estás seguro de que deseas eliminar esta factura?</p>
-        <div class="flex gap-2 mt-4">
-            <button id="confirmDeleteBtn" class="bg-red-500 text-white p-2 rounded w-full">Eliminar</button>
-            <button id="cancelDeleteBtn" class="bg-gray-500 text-white p-2 rounded w-full">Cancelar</button>
+    <div id="confirmDiscrepancyModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-4 rounded-lg w-11/12 md:w-1/3">
+            <h2 class="text-xl font-bold mb-2">Confirmar Pago</h2>
+            <p>El Precio total no es el mismo al Total Esperado, ¿seguro que quiere continuar?</p>
+            <div class="flex gap-2 mt-4">
+                <button id="confirmDiscrepancyBtn" class="bg-blue-500 text-white p-2 rounded w-full">Sí</button>
+                <button id="cancelDiscrepancyBtn" class="bg-gray-500 text-white p-2 rounded w-full">No</button>
+            </div>
         </div>
     </div>
+
+    <div id="confirmDeleteModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-4 rounded-lg w-11/12 md:w-1/3">
+            <h2 class="text-xl font-bold mb-2">Confirmar Eliminación</h2>
+            <p>¿Estás seguro de que deseas eliminar esta factura?</p>
+            <div class="flex gap-2 mt-4">
+                <button id="confirmDeleteBtn" class="bg-red-500 text-white p-2 rounded w-full">Eliminar</button>
+                <button id="cancelDeleteBtn" class="bg-gray-500 text-white p-2 rounded w-full">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="facturas.js"></script>
 </div>
-
-<script src="facturas.js"></script>
-
 </body>
 </html>
