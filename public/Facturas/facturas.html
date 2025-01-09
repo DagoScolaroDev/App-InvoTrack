@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facturas</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-8">
+
+<header class="bg-blue-600 text-white py-4">
+    <div class="container mx-auto flex justify-around">
+        <a href="facturas.html" class="text-xl font-bold hover:text-gray-300">Facturas</a>
+        <a href="../Cuentas/cuentas.html" class="text-xl font-bold hover:text-gray-300">Cuentas</a>
+        <a href="../Recetas/recetas.html" class="text-xl font-bold hover:text-gray-300">Recetas</a>
+        <a href="../Agregar/agregar.html" class="text-xl font-bold hover:text-gray-300">Agregar</a>
+        <a href="../Movimientos/movimientos.html" class="text-xl font-bold hover:text-gray-300">Movimientos</a>
+    </div>
+</header>
+
+<div class="container mx-auto mt-8">
+    <h1 class="text-4xl font-bold mb-6 text-center text-blue-600">Gestión de Facturas</h1>
+
+    <form id="crearFacturaForm" class="mb-8 p-6 bg-white rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold mb-4">Crear Factura</h2>
+        <input type="date" id="fechaFactura" class="border p-2 mb-4 w-full rounded" placeholder="Fecha" required>
+        <input type="text" id="proveedorFactura" class="border p-2 mb-4 w-full rounded" placeholder="Proveedor" list="proveedoresList" required>
+        <datalist id="proveedoresList"></datalist>
+        <input type="text" id="rubroFactura" class="border p-2 mb-4 w-full rounded" placeholder="Rubro" list="rubrosList" required>
+        <datalist id="rubrosList"></datalist>
+        <input type="text" id="numeroFactura" class="border p-2 mb-4 w-full rounded" placeholder="Número de Factura">
+        <input type="text" id="tipoFactura" class="border p-2 mb-4 w-full rounded" placeholder="Tipo de Factura" required>
+        <input type="number" id="totalEsperadoFactura" class="border p-2 mb-4 w-full rounded" placeholder="Total Esperado" required>
+        <div id="productosContainer" class="mb-4">
+            <!-- Los productos se agregarán dinámicamente aquí -->
+        </div>
+        <button type="button" id="agregarProductoBtn" class="bg-blue-500 text-white p-2 rounded mb-4">Agregar Producto</button>
+        <button type="submit" class="bg-green-500 text-white p-2 rounded">Crear Factura</button>
+    </form>
+
+
+    <div class="mb-8 p-6 bg-white rounded-lg shadow-md">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-semibold">Facturas sin Pagar</h2>
+            <div class="flex space-x-2">
+                <input type="text" id="searchProveedorNoPagadas" class="border p-2 rounded w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Buscar Proveedor">
+                <select id="ordenarNoPagadas" class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="fechaAsc">Fecha Ascendente</option>
+                    <option value="fechaDesc">Fecha Descendente</option>
+                    <option value="precioAsc">Precio Ascendente</option>
+                    <option value="precioDesc">Precio Descendente</option>
+                    <option value="rubro">Rubro</option>
+                    <option value="proveedor">Proveedor</option>
+                </select>
+            </div>
+        </div>
+        <ul id="listaFacturas" class="list-disc pl-5 space-y-3"></ul>
+    </div>
+
+    <div class="mb-8 p-6 bg-white rounded-lg shadow-md">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-semibold">Facturas Pagadas</h2>
+            <div class="flex space-x-2">
+                <input type="text" id="searchProveedorPagadas" class="border p-2 rounded w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Buscar Proveedor">
+                <select id="ordenarPagadas" class="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="fechaAsc">Fecha Ascendente</option>
+                    <option value="fechaDesc">Fecha Descendente</option>
+                    <option value="precioAsc">Precio Ascendente</option>
+                    <option value="precioDesc">Precio Descendente</option>
+                    <option value="rubro">Rubro</option>
+                    <option value="proveedor">Proveedor</option>
+                    <option value="cuenta">Cuenta</option>
+                </select>
+            </div>
+        </div>
+        <ul id="listaFacturasPagadas" class="list-disc pl-5 space-y-3"></ul>
+    </div>
+
+
+    <div id="detallesModal" class="modal hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+        <div class="modal-content bg-white p-4 rounded-lg w-11/12 md:w-1/3">
+            <div id="detallesFactura" class="mb-4"></div>
+            <button id="cerrarDetallesBtn" class="bg-red-500 text-white p-2 mt-2 w-full rounded">Cerrar Detalles</button>
+        </div>
+    </div>
+
+    <div id="modal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-4 rounded-lg w-11/12 md:w-1/3">
+            <h2 id="modalTitle" class="text-xl font-bold mb-2">Pagar Factura</h2>
+            <select id="cuentaSelect" class="border p-2 rounded mb-2 w-full"></select>
+            <div class="flex gap-2">
+                <button id="confirmBtn" class="bg-blue-500 text-white p-2 rounded w-full">Confirmar</button>
+                <button id="cancelBtn" class="bg-gray-500 text-white p-2 rounded w-full">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="confirmDeleteModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white p-4 rounded-lg w-11/12 md:w-1/3">
+        <h2 class="text-xl font-bold mb-2">Confirmar Eliminación</h2>
+        <p>¿Estás seguro de que deseas eliminar esta factura?</p>
+        <div class="flex gap-2 mt-4">
+            <button id="confirmDeleteBtn" class="bg-red-500 text-white p-2 rounded w-full">Eliminar</button>
+            <button id="cancelDeleteBtn" class="bg-gray-500 text-white p-2 rounded w-full">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<script src="facturas.js"></script>
+
+</body>
+</html>

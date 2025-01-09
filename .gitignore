@@ -1,0 +1,5 @@
+# Ignorar la carpeta node_modules
+node_modules/
+
+# Ignorar la carpeta .idea (generalmente usada por IDEs como IntelliJ)
+.idea/

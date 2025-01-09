@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Agregar Ingredientes/Productos</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-8">
+
+<header class="bg-blue-600 text-white py-4">
+    <div class="container mx-auto flex justify-around">
+        <a href="../Facturas/facturas.html" class="text-xl font-bold hover:text-gray-300">Facturas</a>
+        <a href="../Cuentas/cuentas.html" class="text-xl font-bold hover:text-gray-300">Cuentas</a>
+        <a href="../Recetas/recetas.html" class="text-xl font-bold hover:text-gray-300">Recetas</a>
+        <a href="agregar.html" class="text-xl font-bold hover:text-gray-300">Agregar</a>
+        <a href="../Movimientos/movimientos.html" class="text-xl font-bold hover:text-gray-300">Movimientos</a>
+    </div>
+</header>
+
+<div class="container mx-auto">
+    <h1 class="text-3xl font-bold mb-4">Agregar Ingredientes/Productos</h1>
+
+    <form id="agregarForm" class="mb-4">
+        <input type="text" id="nombre" class="border p-2 mb-2" placeholder="Nombre del Producto" required>
+        <select id="tipoCantidad" class="border p-2 mb-2" required>
+            <option value="kg">Kg</option>
+            <option value="unidad">Unidad</option>
+        </select>
+        <button type="submit" class="bg-green-500 text-white p-2">Agregar Producto</button>
+    </form>
+
+    <h2 class="text-2xl mb-4">Lista de Ingredientes/Productos</h2>
+    <ul id="listaProductos" class="list-disc pl-5"></ul>
+</div>
+
+<script src="agregar.js"></script>
+
+</body>
+</html>

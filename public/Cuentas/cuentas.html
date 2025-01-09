@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Balances</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-8">
+
+<header class="bg-blue-600 text-white py-4">
+    <div class="container mx-auto flex justify-around">
+        <a href="../Facturas/facturas.html" class="text-xl font-bold hover:text-gray-300">Facturas</a>
+        <a href="cuentas.html" class="text-xl font-bold hover:text-gray-300">Cuentas</a>
+        <a href="../Recetas/recetas.html" class="text-xl font-bold hover:text-gray-300">Recetas</a>
+        <a href="../Agregar/agregar.html" class="text-xl font-bold hover:text-gray-300">Agregar</a>
+        <a href="../Movimientos/movimientos.html" class="text-xl font-bold hover:text-gray-300">Movimientos</a>
+    </div>
+</header>
+
+<div class="container mx-auto p-8">
+    <h1 class="text-2xl font-bold mb-4">Balances de Cuentas</h1>
+    <p id="totalBalance" class="text-xl font-semibold mb-4">Balance total: $0.00</p>
+    <div id="balancesContainer" class="mb-4">
+        <!-- Balances will be displayed here -->
+    </div>
+    <button id="agregarSaldoBtn" class="bg-green-500 text-white p-2 rounded mb-2">Añadir saldo</button>
+    <button id="quitarSaldoBtn" class="bg-red-500 text-white p-2 rounded mb-2">Remover saldo</button>
+    <form id="crearCuentaForm" class="mb-4">
+        <input type="text" id="nombreCuenta" class="border p-2 rounded mb-2 w-full" placeholder="Account Name" required>
+        <select id="colorCuenta" class="border p-2 rounded mb-2 w-full">
+            <option value="#FF5733" style="background-color: #FF5733;">Rojo</option>
+            <option value="#33FF57" style="background-color: #33FF57;">Verde</option>
+            <option value="#3357FF" style="background-color: #3357FF;">Azul</option>
+            <option value="#FF33A1" style="background-color: #FF33A1;">Rosa</option>
+            <option value="#FF8C33" style="background-color: #FF8C33;">Naranja</option>
+            <option value="#8C33FF" style="background-color: #8C33FF;">Violeta</option>
+            <option value="#33FFF5" style="background-color: #33FFF5;">Celeste</option>
+            <option value="#F5FF33" style="background-color: #F5FF33;">Amarillo</option>
+            <option value="#FF3333" style="background-color: #FF3333;">Rojo Oscuro</option>
+            <option value="#33FF8C" style="background-color: #33FF8C;">Verde claro</option>
+            <option value="#3333FF" style="background-color: #3333FF;">Azul Oscuro</option>
+            <option value="#FF33F5" style="background-color: #FF33F5;">Magenta</option>
+        </select>
+        <button type="submit" class="bg-blue-500 text-white p-2 rounded">Crear nueva cuenta</button>
+    </form>
+    <div id="modal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-4 rounded">
+            <h2 id="modalTitle" class="text-xl font-bold mb-2"></h2>
+            <select id="cuentaSelect" class="border p-2 rounded mb-2 w-full"></select>
+            <input type="number" id="saldoInput" class="border p-2 rounded mb-2 w-full" placeholder="Amount">
+            <button id="confirmBtn" class="bg-blue-500 text-white p-2 rounded">Confirmar</button>
+            <button id="cancelBtn" class="bg-gray-500 text-white p-2 rounded">Cancelar</button>
+        </div>
+    </div>
+</div>
+<script src="cuentas.js"></script>
+</body>
+</html>
