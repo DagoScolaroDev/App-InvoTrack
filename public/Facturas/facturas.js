@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <p style="background-color: #f0f8ff;">Fecha: ${new Date(factura.fecha).toLocaleDateString('es-ES')}</p>
             <p style="background-color: #e6e6fa;">Proveedor: ${factura.proveedor}</p>
             <p style="background-color: #f5f5dc;">Rubro: ${factura.rubro}</p>
-            <p style="background-color: #e6ffe6; color: green;">Total: $${factura.total.toFixed(2)}</p>
+            <p style="background-color: #e6ffe6; color: green;">Total: $${factura.total.toLocaleString('es-AR')}</p>
             ${factura.total !== factura.totalEsperado ? '<span>⚠️</span>' : ''}
         `;
             const verDetallesBtn = document.createElement('button');
@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <p style="background-color: #f0f8ff;">Fecha: ${new Date(factura.fecha).toLocaleDateString('es-ES')}</p>
             <p style="background-color: #e6e6fa;">Proveedor: ${factura.proveedor}</p>
             <p style="background-color: #f5f5dc;">Rubro: ${factura.rubro}</p>
-            <p style="background-color: #e6ffe6; color: green;">Total: $${factura.total.toFixed(2)}</p>
+            <p style="background-color: #e6ffe6; color: green;">Total: $${factura.total.toLocaleString('es-AR')}</p>
             ${factura.total !== factura.totalEsperado ? '<span>⚠️</span>' : ''}
             <p style="background-color: ${color};">Pagada con: ${factura.cuentaPagada}</p>
         `;
@@ -394,11 +394,11 @@ document.addEventListener('DOMContentLoaded', () => {
         <p>Tipo de Factura: ${factura.tipo}</p>
         <ul class="list-disc pl-5 mb-2">
             ${factura.productos.map(producto => `
-                <li>${producto.nombre} - ${producto.cantidad} ${producto.tipoCantidad} - $${producto.precio.toFixed(2)} (Subtotal: $${producto.subtotal.toFixed(2)})</li>
+            <li>${producto.nombre} - ${producto.cantidad} ${producto.tipoCantidad} - $${producto.precio.toLocaleString('es-AR')} (Subtotal: $${producto.subtotal.toLocaleString('es-AR')})</li>
             `).join('')}
         </ul>
-        <p class="font-bold">Total: $${factura.total.toFixed(2)}</p>
-        <p class="font-bold">Total Esperado: $${factura.totalEsperado.toFixed(2)}</p>
+        <p class="font-bold">Total: $${factura.total.toLocaleString('es-AR')}</p>
+        <p class="font-bold">Total Esperado: $${factura.totalEsperado.toLocaleString('es-AR')}</p>
         ${factura.cuentaPagada ? `<p>Pagada con: ${factura.cuentaPagada}</p>` : ''}
     `;
         detallesModal.style.display = 'flex';

@@ -25,6 +25,14 @@
         <h2 class="text-2xl font-semibold mb-4">Agregar Producto</h2>
         <form id="agregarProductoForm" class="mb-4 flex flex-col gap-4">
             <input type="text" id="nombreProducto" class="border p-2 rounded" placeholder="Nombre del Producto" required>
+            <label class="flex items-center">
+                <input type="checkbox" id="esSubreceta" class="mr-2">
+                Marcar como Sub-receta
+            </label>
+            <select id="tipoCantidadSubreceta" class="border p-2 rounded hidden">
+                <option value="kg">Kilogramos</option>
+                <option value="unidad">Unidad</option>
+            </select>
             <button type="submit" class="bg-green-500 text-white p-2 rounded hover:bg-green-700 transition-all duration-300">
                 Agregar Producto
             </button>
@@ -54,6 +62,35 @@
         </div>
         <p id="precioTotalProducto" class="text-right font-bold text-gray-800 mb-4"></p>
     </div>
+
+    <div class="mb-8 p-6 bg-white rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold mb-4">Lista de SubRecetas</h2>
+        <div id="listaSubRecetas" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Las sub-recetas se generarán aquí dinámicamente -->
+        </div>
+    </div>
+
+
+    <!-- Modal Structure -->
+    <div id="editModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-1/2">
+            <h2 class="text-2xl font-semibold mb-4">Editar Producto/Sub-receta</h2>
+            <form id="editForm" class="flex flex-col gap-4">
+                <input type="text" id="editNombreProducto" class="border p-2 rounded" placeholder="Nombre del Producto" required>
+                <ul id="editIngredientesList" class="list-disc pl-5 mb-4">
+                    <!-- Ingredientes se generarán aquí dinámicamente -->
+                </ul>
+                <div class="flex justify-end gap-4">
+
+                        <button type="button" id="deleteProduct" class="bg-red-500 text-white p-2 rounded hover:bg-red-700 transition-all duration-300">Eliminar</button>
+                        <button type="button" id="cancelEdit" class="bg-gray-500 text-white p-2 rounded hover:bg-gray-700 transition-all duration-300">Cancelar</button>
+                        <button type="submit" class="bg-green-500 text-white p-2 rounded hover:bg-green-700 transition-all duration-300">Guardar</button>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
 </div>
 
 <script src="recetas.js"></script>

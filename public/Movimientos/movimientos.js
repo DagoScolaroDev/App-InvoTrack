@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         descripcionElemento.classList.add('border', 'px-4', 'py-2');
 
         const montoElemento = document.createElement('td');
-        montoElemento.textContent = `$${monto.toFixed(2)}`;
+        montoElemento.textContent = `$${monto.toLocaleString('es-AR')}`;
         montoElemento.classList.add('border', 'px-4', 'py-2');
 
         const fechaElemento = document.createElement('td');
