@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ingredienteSeleccionado.appendChild(optGroupSubRecetas);
     }
 
+
     function renderizarProductos() {
         listaProductos.innerHTML = '';
         listaSubRecetas.innerHTML = '';
@@ -100,19 +101,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
         productos.forEach((producto, index) => {
             const card = document.createElement('div');
-            card.classList.add('bg-white', 'rounded-lg', 'shadow-md', 'p-4', 'flex', 'flex-col', 'justify-between', 'relative');
+            card.classList.add('bg-white', 'rounded-lg', 'shadow-md', 'p-4', 'flex', 'flex-col', 'justify-between', 'relative', 'mb-4');
 
-            // Campo para el nombre del producto
+            // Calcular el total del producto y el porcentaje real
+            let totalProducto = 0;
+            producto.ingredientes.forEach((ingrediente) => {
+                let precioIngrediente = 0;
+                if (ingrediente.tipo === 'producto') {
+                    const subProducto = productos[ingrediente.index];
+                    if (subProducto) {
+                        const subProductoPrecio = subProducto.ingredientes.reduce((total, ing) => {
+                            return total + obtenerUltimoPrecioIngrediente(ing.nombre) * ing.cantidad;
+                        }, 0);
+                        precioIngrediente = subProductoPrecio * ingrediente.cantidad;
+                    }
+                } else {
+                    const ultimoPrecio = obtenerUltimoPrecioIngrediente(ingrediente.nombre);
+                    precioIngrediente = ultimoPrecio * ingrediente.cantidad;
+                }
+                totalProducto += precioIngrediente;
+            });
+
+            const precioVenta = producto.precioVenta || 0;
+            const porcentajeReal = ((precioVenta - totalProducto) / totalProducto) * 100;
+
+            // Campo para el nombre del producto con total y porcentaje real
             const inputNombre = document.createElement('input');
             inputNombre.type = 'text';
-            inputNombre.value = producto.esSubreceta ? `${producto.nombre} (${producto.tipoCantidad})` : producto.nombre;
+            inputNombre.value = producto.esSubreceta ? `${producto.nombre} (${producto.tipoCantidad}) - T: $${totalProducto.toLocaleString('es-AR')} - ${porcentajeReal.toFixed(2)}%` : `${producto.nombre} - T: $${totalProducto.toLocaleString('es-AR')} - ${porcentajeReal.toFixed(2)}%`;
             inputNombre.disabled = true; // Deshabilitado por defecto
-            inputNombre.classList.add('text-lg', 'font-bold', 'mb-2', 'text-blue-600', 'w-full');
-            card.appendChild(inputNombre);
+            inputNombre.classList.add('text-lg', 'font-bold', 'mb-2', 'w-full');
+
+            // Aplicar color al porcentaje real
+            if (porcentajeReal > producto.porcentajeCalculado || porcentajeReal < 0) {
+                inputNombre.classList.add('text-red-500');
+            } else {
+                inputNombre.classList.add('text-green-500');
+            }
+
+            // Crear contenedor para el nombre y el porcentaje real
+            const nombreContenedor = document.createElement('div');
+            nombreContenedor.classList.add('flex', 'justify-between', 'items-center');
+            nombreContenedor.appendChild(inputNombre);
+
+            card.appendChild(nombreContenedor);
 
             // Botón para ver detalles
             const btnVerDetalles = document.createElement('button');
-            btnVerDetalles.textContent = 'V';
+            btnVerDetalles.innerHTML = '<i class="fas fa-eye"></i>';
             btnVerDetalles.classList.add('bg-blue-500', 'text-white', 'p-1', 'rounded', 'hover:bg-blue-700', 'transition-all', 'duration-300', 'absolute', 'top-2', 'right-2');
             btnVerDetalles.addEventListener('click', () => {
                 detalles.classList.toggle('hidden');
@@ -121,12 +157,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Sección de detalles
             const detalles = document.createElement('div');
-            detalles.classList.add('hidden');
+            detalles.classList.add('hidden', 'mt-4');
 
             const ulIngredientes = document.createElement('ul');
             ulIngredientes.classList.add('list-disc', 'pl-5', 'mb-4');
 
-            let totalProducto = 0;
             producto.ingredientes.forEach((ingrediente) => {
                 const liIngrediente = document.createElement('li');
                 let precioIngrediente = 0;
@@ -146,8 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     precioIngrediente = ultimoPrecio * ingrediente.cantidad;
                     ingredienteTexto = `${ingrediente.nombre} (${ingrediente.tipoCantidad}) - $${ultimoPrecio.toLocaleString('es-AR')} (Subtotal: $${precioIngrediente.toLocaleString('es-AR')})`;
                 }
-
-                totalProducto += precioIngrediente;
 
                 // Campo para la cantidad del ingrediente
                 const inputCantidad = document.createElement('input');
@@ -173,6 +206,64 @@ document.addEventListener('DOMContentLoaded', () => {
             totalProductoElement.classList.add('text-right', 'font-bold', 'text-gray-800', 'mb-4');
             detalles.appendChild(totalProductoElement);
 
+            // Contenedor para Precio Venta
+            const precioVentaContainer = document.createElement('div');
+            precioVentaContainer.classList.add('flex', 'items-center', 'mb-2');
+            const precioVentaLabel = document.createElement('label');
+            precioVentaLabel.textContent = '$V:';
+            precioVentaLabel.classList.add('mr-2');
+            const precioVentaInput = document.createElement('input');
+            precioVentaInput.type = 'number';
+            precioVentaInput.value = producto.precioVenta || 0;
+            precioVentaInput.classList.add('border', 'border-gray-300', 'rounded', 'px-2', 'py-1', 'w-full');
+            precioVentaInput.addEventListener('input', (e) => {
+                producto.precioVenta = parseFloat(e.target.value);
+                actualizarPorcentajes();
+                guardarProductos();
+            });
+            precioVentaContainer.appendChild(precioVentaLabel);
+            precioVentaContainer.appendChild(precioVentaInput);
+            detalles.appendChild(precioVentaContainer);
+
+            // Contenedor para Porcentaje Calculado
+            const porcentajeCalculadoContainer = document.createElement('div');
+            porcentajeCalculadoContainer.classList.add('flex', 'items-center', 'mb-2');
+            const porcentajeCalculadoLabel = document.createElement('label');
+            porcentajeCalculadoLabel.textContent = '%C:';
+            porcentajeCalculadoLabel.classList.add('mr-2');
+            const porcentajeCalculadoInput = document.createElement('input');
+            porcentajeCalculadoInput.type = 'number';
+            porcentajeCalculadoInput.value = producto.porcentajeCalculado || 0;
+            porcentajeCalculadoInput.classList.add('border', 'border-gray-300', 'rounded', 'px-2', 'py-1', 'w-full');
+            porcentajeCalculadoInput.addEventListener('input', (e) => {
+                producto.porcentajeCalculado = parseFloat(e.target.value);
+                actualizarPorcentajes();
+                guardarProductos();
+            });
+            porcentajeCalculadoContainer.appendChild(porcentajeCalculadoLabel);
+            porcentajeCalculadoContainer.appendChild(porcentajeCalculadoInput);
+            detalles.appendChild(porcentajeCalculadoContainer);
+
+            function actualizarPorcentajes() {
+                const precioVenta = producto.precioVenta || 0;
+                const porcentajeCalculado = producto.porcentajeCalculado || 0;
+                const porcentajeReal = ((precioVenta - totalProducto) / totalProducto) * 100;
+
+                // Aplicar estilos condicionales
+                if (porcentajeReal > porcentajeCalculado || porcentajeReal < 0) {
+                    inputNombre.classList.add('text-red-500');
+                    inputNombre.classList.remove('text-green-500');
+                } else {
+                    inputNombre.classList.add('text-green-500');
+                    inputNombre.classList.remove('text-red-500');
+                }
+
+                // Actualizar el nombre del producto con el nuevo porcentaje real
+                inputNombre.value = producto.esSubreceta ? `${producto.nombre} (${producto.tipoCantidad}) - T: $${totalProducto.toLocaleString('es-AR')} - ${porcentajeReal.toFixed(2)}%` : `${producto.nombre} - T: $${totalProducto.toLocaleString('es-AR')} - ${porcentajeReal.toFixed(2)}%`;
+            }
+
+            actualizarPorcentajes();
+
             // Botón de editar
             const btnEditar = document.createElement('button');
             btnEditar.textContent = 'Editar';
@@ -188,6 +279,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 listaProductos.appendChild(card);
             }
         });
+    }
+
+    function guardarProductos() {
+        localStorage.setItem('productosRecetas', JSON.stringify(productos));
     }
 
     function abrirModalEditar(index) {

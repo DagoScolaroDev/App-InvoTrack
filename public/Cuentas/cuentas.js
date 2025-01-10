@@ -29,13 +29,15 @@ document.addEventListener('DOMContentLoaded', () => {
         balancesContainer.innerHTML = '';
         let total = 0;
         cuentas.forEach((cuenta, index) => {
+            const saldoFormatted = cuenta.saldo.toFixed(2);
+            const saldoClass = cuenta.saldo < 0 ? 'text-red-500' : '';
             const div = document.createElement('div');
             div.classList.add('mb-2', 'flex', 'justify-between', 'items-center');
             div.innerHTML = `
-                <span>${cuenta.nombre}: $${cuenta.saldo.toFixed(2)}</span>
-                <span style="background-color: ${cuenta.color}; width: 20px; height: 20px; display: inline-block; border: 1px solid #000;"></span>
-                <button class="bg-red-500 text-white p-2 rounded" onclick="eliminarCuenta(${index})">Delete</button>
-            `;
+            <span class="${saldoClass}">${cuenta.nombre}: $${saldoFormatted}</span>
+            <span style="background-color: ${cuenta.color}; width: 20px; height: 20px; display: inline-block; border: 1px solid #000;"></span>
+            <button class="bg-red-500 text-white p-2 rounded" onclick="eliminarCuenta(${index})">Delete</button>
+        `;
             balancesContainer.appendChild(div);
             total += cuenta.saldo;
         });
