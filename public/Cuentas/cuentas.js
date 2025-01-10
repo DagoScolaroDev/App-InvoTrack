@@ -13,6 +13,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const colorCuenta = document.getElementById('colorCuenta');
     const totalBalance = document.getElementById('totalBalance');
 
+    const transferirSaldoBtn = document.getElementById('transferirSaldoBtn');
+    const transferModal = document.getElementById('transferModal');
+    const cuentaOrigenSelect = document.getElementById('cuentaOrigenSelect');
+    const cuentaDestinoSelect = document.getElementById('cuentaDestinoSelect');
+    const montoTransferenciaInput = document.getElementById('montoTransferenciaInput');
+    const motivoTransferenciaInput = document.getElementById('motivoTransferenciaInput');
+    const confirmTransferBtn = document.getElementById('confirmTransferBtn');
+    const cancelTransferBtn = document.getElementById('cancelTransferBtn');
+
+
     let cuentas = JSON.parse(localStorage.getItem('cuentas')) || [];
 
     function renderizarBalances() {
@@ -92,6 +102,54 @@ document.addEventListener('DOMContentLoaded', () => {
     agregarSaldoBtn.addEventListener('click', () => abrirModal('agregar'));
     quitarSaldoBtn.addEventListener('click', () => abrirModal('quitar'));
     cancelBtn.addEventListener('click', () => modal.classList.add('hidden'));
+
+
+    function abrirTransferModal() {
+        cuentaOrigenSelect.innerHTML = '';
+        cuentaDestinoSelect.innerHTML = '';
+        cuentas.forEach((cuenta, index) => {
+            const optionOrigen = document.createElement('option');
+            optionOrigen.value = index;
+            optionOrigen.textContent = cuenta.nombre;
+            cuentaOrigenSelect.appendChild(optionOrigen);
+
+            const optionDestino = document.createElement('option');
+            optionDestino.value = index;
+            optionDestino.textContent = cuenta.nombre;
+            cuentaDestinoSelect.appendChild(optionDestino);
+        });
+        montoTransferenciaInput.value = '';
+        motivoTransferenciaInput.value = '';
+        transferModal.classList.remove('hidden');
+    }
+
+    function confirmarTransferencia() {
+        const cuentaOrigenIndex = parseInt(cuentaOrigenSelect.value, 10);
+        const cuentaDestinoIndex = parseInt(cuentaDestinoSelect.value, 10);
+        const monto = parseFloat(montoTransferenciaInput.value);
+        const motivo = motivoTransferenciaInput.value.trim();
+
+        if (!isNaN(monto) && cuentaOrigenIndex >= 0 && cuentaDestinoIndex >= 0 && cuentaOrigenIndex !== cuentaDestinoIndex) {
+            const cuentaOrigen = cuentas[cuentaOrigenIndex];
+            const cuentaDestino = cuentas[cuentaDestinoIndex];
+
+            cuentaOrigen.saldo -= monto;
+            cuentaDestino.saldo += monto;
+
+            const descripcion = `Transferencia de ${cuentaOrigen.nombre} a ${cuentaDestino.nombre}`;
+            guardarMovimiento('Transferencia', motivo ? `${descripcion} - Motivo: ${motivo}` : descripcion, monto);
+
+            localStorage.setItem('cuentas', JSON.stringify(cuentas));
+            renderizarBalances();
+            transferModal.classList.add('hidden');
+        }
+    }
+
+    transferirSaldoBtn.addEventListener('click', abrirTransferModal);
+    confirmTransferBtn.addEventListener('click', confirmarTransferencia);
+    cancelTransferBtn.addEventListener('click', () => transferModal.classList.add('hidden'));
+
+
 
     renderizarBalances();
 });
