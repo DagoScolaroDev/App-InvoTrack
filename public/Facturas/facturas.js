@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderizarFacturas(searchTerm = '', sortBy = 'fechaAsc') {
         listaFacturas.innerHTML = '';
         const facturasFiltradas = facturas
-            .filter(factura => factura.proveedor.toLowerCase().includes(searchTerm))
+            .filter(factura => factura.proveedor && factura.proveedor.toLowerCase().includes(searchTerm))
             .sort((a, b) => ordenarFacturas(a, b, sortBy));
 
         facturasFiltradas.forEach((factura) => {
@@ -441,8 +441,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Calculate the highest existing numeroInterno
         const maxNumeroInterno = Math.max(
-            ...facturas.map(f => f.numeroInterno),
-            ...facturasPagadas.map(f => f.numeroInterno),
+            ...facturas.map(f => f.numeroInterno || 0),
+            ...facturasPagadas.map(f => f.numeroInterno || 0),
             0
         );
 
@@ -555,14 +555,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const ultimosPrecios = {};
 
         [...facturas, ...facturasPagadas].forEach((factura, index) => {
-            factura.productos.forEach(producto => {
-                if (!ultimosPrecios[producto.nombre] || index > ultimosPrecios[producto.nombre].index) {
-                    ultimosPrecios[producto.nombre] = {
-                        precio: producto.precio,
-                        index: index
-                    };
-                }
-            });
+            if (factura.productos) {
+                factura.productos.forEach(producto => {
+                    if (!ultimosPrecios[producto.nombre] || index > ultimosPrecios[producto.nombre].index) {
+                        ultimosPrecios[producto.nombre] = {
+                            precio: producto.precio,
+                            index: index
+                        };
+                    }
+                });
+            }
         });
 
         return ultimosPrecios;
